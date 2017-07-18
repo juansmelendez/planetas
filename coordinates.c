@@ -157,7 +157,7 @@ int main(){
     for (p=0;p<10;p++){
         masas[p] = (datos[p][0])/(masa_solar);
         /*El siguiente print se hace con el fin de verificar que los datos ingresados a el arreglo masas sean correctos*/
-        printf("\nLa masa del cuerpo %d es: %f\n",p,masas[p]);
+        /*###########################################################printf("\nLa masa del cuerpo %d es: %f\n",p,masas[p]); ###########################################################*/
     }
     
     /*Se ingresan los datos iniciales de posición y velocidad en la matriz mtz_almacen_temp*/
@@ -168,12 +168,13 @@ int main(){
     for (m=0;m<10;m++){
         for (n=0;n<6;n++){
           mtz_almacen_temp[(9*m)+n][0] = datos[m][n+1];
-          printf("\nEl dato en la posición %d , 0 de la matriz mtz_almacen_temp es: %f\n",(9*m)+n,mtz_almacen_temp[(9*m)+n][0]);
-          printf("El valor de n (data type) es %d y el valor de m (cuerpo) es %d",n,m);
+          /*############################################################ printf("\nEl dato en la posición %d , 0 de la matriz mtz_almacen_temp es: %f\n",(9*m)+n,mtz_almacen_temp[(9*m)+n][0]);
+          printf("El valor de n (data type) es %d y el valor de m (cuerpo) es %d",n,m); ##############################################################*/
         }        
     }
     
     /*Se calculan las aceleraciones iniciales de la mtz_almacen_temp*/
+    /*En primera instancia se llena la matriz de fuerzas*/
     
     int px = 0;
     int py = 1;
@@ -210,7 +211,12 @@ int main(){
                     norm_tot = pow(((pow(norm_dif_x,2.0))+(pow(norm_dif_y,2.0))+(pow(norm_dif_z,2.0))),(0.5));
                     
                     mtz_F[n][m] = ((G_cte)*(masas[n]*masas[m])*(norm_dif_x))/(pow(norm_tot,3.0));
+                    
+                    /*################################################# printf("\nLa fuerza en la posición %d , %d es: %f\n",n,m,mtz_F[n][m]); #################################################*/
                 }
+                /*else{
+                    printf("Error en el primer if de la inicialización de la matriz mtz_F\n");
+                }*/
                 
             }
             /*Este segundo if va a llenar las segundas 10 filas de mtz_F referentes a las componentes de las fuerzas en el eje y*/
@@ -219,15 +225,68 @@ int main(){
                 if ((n-10)==m){
                     mtz_F[n][m] = 0;
                 }
+                if ((n-10)!=m){
+                    norm_dif_x = mtz_almacen_temp[(9*m)+px][0]-mtz_almacen_temp[(9*(n-10))+px][0];
+                    
+                    norm_dif_y =mtz_almacen_temp[(9*m)+py][0]-mtz_almacen_temp[(9*(n-10))+py][0];
+                    
+                    norm_dif_z =mtz_almacen_temp[(9*m)+pz][0]-mtz_almacen_temp[(9*(n-10))+pz][0];
+                    
+                    norm_tot = pow(((pow(norm_dif_x,2.0))+(pow(norm_dif_y,2.0))+(pow(norm_dif_z,2.0))),(0.5));
+                    
+                    mtz_F[n][m] = ((G_cte)*(masas[(n-10)]*masas[m])*(norm_dif_x))/(pow(norm_tot,3.0));
+                    
+                    /*################################################# printf("\nLa fuerza en la posición %d , %d es: %f\n",n,m,mtz_F[n][m]); ##################################################*/
+                }
+                /*else {
+                    printf("Error en el segundo if de la inicializacion de la matriz mtz_F\n");
+                }*/
             }
             /*Este tercer if va a llenar las terceras 10 filas de mtz_F referentes a las componentes de las fuerzas en el eje z*/
-            if (n>=20 && n<=30){
+            if (n>=20 && n<30){
                 /*Este if garantiza que la fuerza graviotacional que ejerce un cuerpo sobre el mismo es 0*/
                 if ((n-20)==m){
                     mtz_F[n][m] = 0;
                 }
+                if ((n-20)!=m){
+                    norm_dif_x = mtz_almacen_temp[(9*m)+px][0]-mtz_almacen_temp[(9*(n-20))+px][0];
+                    
+                    norm_dif_y =mtz_almacen_temp[(9*m)+py][0]-mtz_almacen_temp[(9*(n-20))+py][0];
+                    
+                    norm_dif_z =mtz_almacen_temp[(9*m)+pz][0]-mtz_almacen_temp[(9*(n-20))+pz][0];
+                    
+                    norm_tot = pow(((pow(norm_dif_x,2.0))+(pow(norm_dif_y,2.0))+(pow(norm_dif_z,2.0))),(0.5));
+                    
+                    mtz_F[n][m] = ((G_cte)*(masas[(n-20)]*masas[m])*(norm_dif_x))/(pow(norm_tot,3.0));
+                    
+                    /*################################################# printf("\nLa fuerza en la posición %d , %d es: %f\n",n,m,mtz_F[n][m]); ###################################################*/
+                }
+                /*else {
+                    printf("Error en el tercer if de la inicializacion de la matriz mtz_F\n");
+                }*/
             }
         }
+    }
+    
+    /*Ahora se procede a llenar el arreglo "array F"*/
+    
+    float suma;
+    
+    /*Este primer for va a recorrer las filas de mtz_F*/
+    for (n=0;n<30;n++){
+        suma = 0.0;
+        /*Este segundo for va a recorrer las columnas de mtz_F con el fin de sumar sus componentes y hallar la fuerza que siente un cuerpo en determinado momento segundo los demas*/
+        for (m=0;m<10;m++){
+            suma = suma + mtz_F[n][m];
+        }
+        array_F[n] = suma;
+        printf("\nLa fuerza total en la posición %d es: %f \n",n,array_F[n]);
+    }
+    
+    /*Ahora si se pueden hallar las aceleraciones de cada cuerpo en cada componente*/
+    
+    for (){
+        
     }
     
     return 0;

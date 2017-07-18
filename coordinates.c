@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 /*
 Manera de revisar errores en el codigo
@@ -11,7 +12,8 @@ gdb ./file.x
 >>> run
 */
 
-
+//masa en kilogramos
+//
 int main(){
     
     FILE *in = fopen("coordinates.csv","r");
@@ -21,6 +23,9 @@ int main(){
     float datos[10][7];
     FILE *fp;
     float h = 1;
+    float masa_solar = 1.98 * (pow(10.0,30.0));
+    /*Constante gravitacionale en (Newton*(UA^2))/(Masas Solares)*/
+    float G_cte = 1.1799 * (pow(10.0,28.0));
     
     
     if (in == NULL){
@@ -150,9 +155,9 @@ int main(){
     int p=0;
     
     for (p=0;p<10;p++){
-        masas[p] = datos[p][0];
+        masas[p] = (datos[p][0])/(masa_solar);
         /*El siguiente print se hace con el fin de verificar que los datos ingresados a el arreglo masas sean correctos*/
-        //printf("\nLa masa del cuerpo %d es: %f\n",p,masas[p]);
+        printf("\nLa masa del cuerpo %d es: %f\n",p,masas[p]);
     }
     
     /*Se ingresan los datos iniciales de posición y velocidad en la matriz mtz_almacen_temp*/
@@ -179,6 +184,10 @@ int main(){
     int ax = 6;
     int ay = 7;
     int az = 8;
+    float norm_dif_x;
+    float norm_dif_y;
+    float norm_dif_z;
+    float norm_tot;
     
     for (m=0;m<10;m++){
         /*El primer "for" va a recorrer la matriz "mtz_F a lo largo de sus 10 columnas*/ 
@@ -190,6 +199,17 @@ int main(){
                 /*Este if garantiza que la fuerza graviotacional que ejerce un cuerpo sobre el mismo es 0*/
                 if (n==m){
                     mtz_F[n][m] = 0;
+                }
+                if (n!=m){
+                    norm_dif_x = mtz_almacen_temp[(9*m)+px][0]-mtz_almacen_temp[(9*n)+px][0];
+                    
+                    norm_dif_y =mtz_almacen_temp[(9*m)+py][0]-mtz_almacen_temp[(9*n)+py][0];
+                    
+                    norm_dif_z =mtz_almacen_temp[(9*m)+pz][0]-mtz_almacen_temp[(9*n)+pz][0];
+                    
+                    norm_tot = pow(((pow(norm_dif_x,2.0))+(pow(norm_dif_y,2.0))+(pow(norm_dif_z,2.0))),(0.5));
+                    
+                    mtz_F[n][m] = ((G_cte)*(masas[n]*masas[m])*(norm_dif_x))/(pow(norm_tot,3.0));
                 }
                 
             }

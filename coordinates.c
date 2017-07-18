@@ -22,7 +22,7 @@ int main(){
     int i=0,j=0;
     float datos[10][7];
     FILE *fp;
-    float h = 1;
+    float h = 1.0/365.0;
     float masa_solar = 1.98 * (pow(10.0,30.0));
     /*Constante gravitacionale en (Newton*(UA^2))/(Masas Solares)*/
     float G_cte = 1.1799 * (pow(10.0,28.0));
@@ -92,24 +92,24 @@ int main(){
     [9] = Plutón
     
     Filas (Indica qué cuerpo está siendo analizado y en qué componente):
-    [(10*0)+0] = F experimentada por Sol en eje x según [#] 
-    [(10*0)+1] = F experimentada por Mercurio en eje x según [#] 
-    [(10*0)+2] = F experimentada por Venus en eje x según [#] 
+    [(10*0)+0][#] = F experimentada por Sol en eje x según [#] 
+    [(10*0)+1][#] = F experimentada por Mercurio en eje x según [#] 
+    [(10*0)+2][#] = F experimentada por Venus en eje x según [#] 
     .
     .
     .
-    [(10*1)+0] = F experimentada por Sol en eje y según [#] 
-    [(10*1)+1] = F experimentada por Mercurio en eje y según [#] 
+    [(10*1)+0][#] = F experimentada por Sol en eje y según [#] 
+    [(10*1)+1][#] = F experimentada por Mercurio en eje y según [#] 
     .
     .
-    [(10*1)+9] = F experimentada por Plutón en eje y según [#] 
-    [(10*2)+0] = F experimentada por Sol en eje z según [#] 
+    [(10*1)+9][#] = F experimentada por Plutón en eje y según [#] 
+    [(10*2)+0][#] = F experimentada por Sol en eje z según [#] 
     .
     .
     .
-    [(10*2)+7] = F experimentada por Urano en eje z según [#] 
-    [(10*2)+8] = F experimentada por Neptuno en eje z según [#] 
-    [(10*2)+9] = F experimentada por Plutón en eje z según [#]
+    [(10*2)+7][#] = F experimentada por Urano en eje z según [#] 
+    [(10*2)+8][#] = F experimentada por Neptuno en eje z según [#] 
+    [(10*2)+9][#] = F experimentada por Plutón en eje z según [#]
     
     La matriz "mtz_F" se utilizaría de la siguiente manera:
     
@@ -134,16 +134,18 @@ int main(){
     /*Inicializo un arreglo de tipo float llamado: "array_F" de tamaño [30] que contendrá las fuerzas experimentadas por cada cuerpo debido al efecto generado por la presencia de todos los demas en cada componente espacial para determinado tiempo t y se organizará de la siguiente manera:
     
     array_F[0] = fuerza_x_Sol
-    array_F[1] = fuerza_y_Sol
+    array_F[1] = fuerza_x_Mercurio
+    array_F[2] = fuerza_x_Venus
     .
     .
     .
-    array_F[16] = fuerza_y_Jupiter
+    array_F[9] = fuerza_x_Plutón
+    array_F[10] = fuerza_y_Sol
     .
     .
     .
-    array_F[28] = fuerza_y_Plutón
-    array_F[29] = fuerza_y_Plutón
+    array_F[28] = fuerza_z_Neptuno
+    array_F[29] = fuerza_z_Plutón
     
     Este arreglo resulta de sumar todos los elementos de cada fila de la matriz "mtz_F" generando así a "array_F"
     */
@@ -275,19 +277,64 @@ int main(){
     /*Este primer for va a recorrer las filas de mtz_F*/
     for (n=0;n<30;n++){
         suma = 0.0;
+        /*############################################################# printf("\nLa suma antes del for es: %f",suma); #############################################################*/
         /*Este segundo for va a recorrer las columnas de mtz_F con el fin de sumar sus componentes y hallar la fuerza que siente un cuerpo en determinado momento segundo los demas*/
         for (m=0;m<10;m++){
             suma = suma + mtz_F[n][m];
         }
         array_F[n] = suma;
+        /*#############################################################
         printf("\nLa fuerza total en la posición %d es: %f \n",n,array_F[n]);
+        #############################################################*/
     }
     
     /*Ahora si se pueden hallar las aceleraciones de cada cuerpo en cada componente*/
     
-    for (){
-        
+    for (n=0;n<10;n++){
+        /*Las 3 siguientes actualizaciones aplican al mismo cuerpo n en sus 3 diferentes componentes espaciales*/
+        mtz_almacen_temp[(9*n)+ax][0] = array_F[(10*0)+n]/(masas[n]);
+        mtz_almacen_temp[(9*n)+ay][0] = array_F[(10*1)+n]/(masas[n]);
+        mtz_almacen_temp[(9*n)+az][0] = array_F[(10*2)+n]/(masas[n]);
     }
+    
+    /*Ya teniendo todas las variables espaciales iniciales en la matriz mtz_almacen_temp se puede proceder a llenar las siguientes columnas, es decir a calcular las posiciones, velocidades y aceleraciones en tiempo futuros*/
+    
+    /*#############################################################
+    for (n=0;n<91;n++){
+        printf("\nEl valor de mtz_almacen_tem en la posición %d , 0 es: %f",n,mtz_almacen_temp[n][0]);
+    }
+    #############################################################*/
+    
+    /*Solo falta inicializar la posición mtz_almacen_temp[90][0] que es el primer tiempo y será 0.0*/
+    
+    mtz_almacen_temp[90][0] = 0.0;
+    
+    int ciclo = 0;
+    
+    /*De ahora en adelante se le llamara ciclo a cada fase de llenado de la matriz mtz_almacen_temp.
+    A continuación el primer ciclo:*/
+    
+    /*Este primer for va a recorrer las columnas de mtz_almacen_temp pero ya que se tiene la columna 0 llena con las condiciones iniciales, la variable n empieza en 1 y no en 0*/
+    for (n=1;n<10;n++){
+        /*Este segundo for (variable "m") va a recorrer las filas de mtz_almacen_temp a través de sus cuerpos por eso (0 <= m < 10) y solo va a llenar las variables de */
+        for (m=0;m<10;m++){
+            /*Actualización de componentes de posición*/
+            mtz_almacen_temp[(9*n)+px][n] = mtz_almacen_temp[(9*n)+px][n-1] + (mtz_almacen_temp[(9*n)+vx][n-1] * h);
+            
+            mtz_almacen_temp[(9*n)+py][n] = mtz_almacen_temp[(9*n)+py][n-1] + (mtz_almacen_temp[(9*n)+vy][n-1] * h);
+            
+            mtz_almacen_temp[(9*n)+pz][n] = mtz_almacen_temp[(9*n)+pz][n-1] + (mtz_almacen_temp[(9*n)+vz][n-1] * h);
+            
+            /*Actualización de componentes de velocidad*/
+            mtz_almacen_temp[(9*n)+vx][n] = mtz_almacen_temp[(9*n)+vx][n-1] + (mtz_almacen_temp[(9*n)+ax][n-1] * h);
+            
+            mtz_almacen_temp[(9*n)+vy][n] = mtz_almacen_temp[(9*n)+vy][n-1] + (mtz_almacen_temp[(9*n)+ay][n-1] * h);
+            
+            mtz_almacen_temp[(9*n)+vz][n] = mtz_almacen_temp[(9*n)+vz][n-1] + (mtz_almacen_temp[(9*n)+az][n-1] * h);
+        }
+        /*En este tercer for se calcularán las nuevas aceleraciones*/
+    }
+    
     
     return 0;
 }

@@ -170,8 +170,21 @@ int main(){
     
     /*Se calculan las aceleraciones iniciales de la mtz_almacen_temp*/
     
+    int px = 0;
+    int py = 1;
+    int pz = 2;
+    int vx = 3;
+    int vy = 4;
+    int vz = 5;
+    int ax = 6;
+    int ay = 7;
+    int az = 8;
+    
     for (m=0;m<10;m++){
-        
+        /*El primer "for" va a recorrer la matriz "mtz_F a lo largo de sus 10 columnas*/ 
+        for (n=0;n<30;n++){
+            /*El segundo "for" va a recorrer la matriz "mtz_F" a lo largo de sus 30 filas*/
+        }
     }
     
     return 0;

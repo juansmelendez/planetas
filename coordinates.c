@@ -184,6 +184,29 @@ int main(){
         /*El primer "for" va a recorrer la matriz "mtz_F a lo largo de sus 10 columnas*/ 
         for (n=0;n<30;n++){
             /*El segundo "for" va a recorrer la matriz "mtz_F" a lo largo de sus 30 filas*/
+            
+            /*Este primer if va a llenar las primeras 10 filas de mtz_F referentes a las componentes de las fuerzas en el eje x*/
+            if (n>=0 && n<10){
+                /*Este if garantiza que la fuerza graviotacional que ejerce un cuerpo sobre el mismo es 0*/
+                if (n==m){
+                    mtz_F[n][m] = 0;
+                }
+                
+            }
+            /*Este segundo if va a llenar las segundas 10 filas de mtz_F referentes a las componentes de las fuerzas en el eje y*/
+            if (n>=10 && n<20){
+                /*Este if garantiza que la fuerza graviotacional que ejerce un cuerpo sobre el mismo es 0*/
+                if ((n-10)==m){
+                    mtz_F[n][m] = 0;
+                }
+            }
+            /*Este tercer if va a llenar las terceras 10 filas de mtz_F referentes a las componentes de las fuerzas en el eje z*/
+            if (n>=20 && n<=30){
+                /*Este if garantiza que la fuerza graviotacional que ejerce un cuerpo sobre el mismo es 0*/
+                if ((n-20)==m){
+                    mtz_F[n][m] = 0;
+                }
+            }
         }
     }
     

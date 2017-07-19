@@ -12,8 +12,6 @@ gdb ./file.x
 >>> run
 */
 
-//masa en kilogramos
-//
 int main(){
     
     FILE *in = fopen("coordinates.csv","r");
@@ -236,7 +234,7 @@ int main(){
                     
                     norm_tot = pow(((pow(norm_dif_x,2.0))+(pow(norm_dif_y,2.0))+(pow(norm_dif_z,2.0))),(0.5));
                     
-                    mtz_F[n][m] = ((G_cte)*(masas[(n-10)]*masas[m])*(norm_dif_x))/(pow(norm_tot,3.0));
+                    mtz_F[n][m] = ((G_cte)*(masas[(n-10)]*masas[m])*(norm_dif_y))/(pow(norm_tot,3.0));
                     
                     /*################################################# printf("\nLa fuerza en la posición %d , %d es: %f\n",n,m,mtz_F[n][m]); ##################################################*/
                 }
@@ -259,7 +257,7 @@ int main(){
                     
                     norm_tot = pow(((pow(norm_dif_x,2.0))+(pow(norm_dif_y,2.0))+(pow(norm_dif_z,2.0))),(0.5));
                     
-                    mtz_F[n][m] = ((G_cte)*(masas[(n-20)]*masas[m])*(norm_dif_x))/(pow(norm_tot,3.0));
+                    mtz_F[n][m] = ((G_cte)*(masas[(n-20)]*masas[m])*(norm_dif_z))/(pow(norm_tot,3.0));
                     
                     /*################################################# printf("\nLa fuerza en la posición %d , %d es: %f\n",n,m,mtz_F[n][m]); ###################################################*/
                 }
@@ -310,31 +308,219 @@ int main(){
     mtz_almacen_temp[90][0] = 0.0;
     
     int ciclo = 0;
-    
+    fp = fopen("datos.txt","w+");
     /*De ahora en adelante se le llamara ciclo a cada fase de llenado de la matriz mtz_almacen_temp.
     A continuación el primer ciclo:*/
     
     /*Este primer for va a recorrer las columnas de mtz_almacen_temp pero ya que se tiene la columna 0 llena con las condiciones iniciales, la variable n empieza en 1 y no en 0*/
     for (n=1;n<10;n++){
+        
         /*Este segundo for (variable "m") va a recorrer las filas de mtz_almacen_temp a través de sus cuerpos por eso (0 <= m < 10) y solo va a llenar las variables de posición y velocidad*/
         for (m=0;m<10;m++){
             /*Actualización de componentes de posición*/
-            mtz_almacen_temp[(9*n)+px][n] = mtz_almacen_temp[(9*n)+px][n-1] + (mtz_almacen_temp[(9*n)+vx][n-1] * h);
+            mtz_almacen_temp[(9*m)+px][n] = mtz_almacen_temp[(9*m)+px][n-1] + (mtz_almacen_temp[(9*m)+vx][n-1] * h);
             
-            mtz_almacen_temp[(9*n)+py][n] = mtz_almacen_temp[(9*n)+py][n-1] + (mtz_almacen_temp[(9*n)+vy][n-1] * h);
+            mtz_almacen_temp[(9*m)+py][n] = mtz_almacen_temp[(9*m)+py][n-1] + (mtz_almacen_temp[(9*m)+vy][n-1] * h);
             
-            mtz_almacen_temp[(9*n)+pz][n] = mtz_almacen_temp[(9*n)+pz][n-1] + (mtz_almacen_temp[(9*n)+vz][n-1] * h);
+            mtz_almacen_temp[(9*m)+pz][n] = mtz_almacen_temp[(9*m)+pz][n-1] + (mtz_almacen_temp[(9*m)+vz][n-1] * h);
             
             /*Actualización de componentes de velocidad*/
-            mtz_almacen_temp[(9*n)+vx][n] = mtz_almacen_temp[(9*n)+vx][n-1] + (mtz_almacen_temp[(9*n)+ax][n-1] * h);
+            mtz_almacen_temp[(9*m)+vx][n] = mtz_almacen_temp[(9*m)+vx][n-1] + (mtz_almacen_temp[(9*m)+ax][n-1] * h);
             
-            mtz_almacen_temp[(9*n)+vy][n] = mtz_almacen_temp[(9*n)+vy][n-1] + (mtz_almacen_temp[(9*n)+ay][n-1] * h);
+            mtz_almacen_temp[(9*m)+vy][n] = mtz_almacen_temp[(9*m)+vy][n-1] + (mtz_almacen_temp[(9*m)+ay][n-1] * h);
             
-            mtz_almacen_temp[(9*n)+vz][n] = mtz_almacen_temp[(9*n)+vz][n-1] + (mtz_almacen_temp[(9*n)+az][n-1] * h);
+            mtz_almacen_temp[(9*m)+vz][n] = mtz_almacen_temp[(9*m)+vz][n-1] + (mtz_almacen_temp[(9*m)+az][n-1] * h);
         }
-        /*En este tercer for se calcularán las nuevas aceleraciones*/
+        
+        /*En este tercer for se calcularán las nuevas fuerzas*/
+        /*Este primer for va a recorrer las columnas de mtz_F*/
+        for (m=0;m<10;m++){
+            /*Este segundo for va a recorrer las filas de mtz_F*/
+            for (p=0;p<30;p++){
+                /*Este primer if va a actualizar las primeras 10 filas de mtz_F referentes a las fuerzas en el eje x*/
+                if (p>=0 && p<10){
+                   if (p==m){
+                      mtz_F[p][m] = 0; 
+                   }
+                   if (p!=m){
+                      norm_dif_x = mtz_almacen_temp[(9*m)+px][n]-mtz_almacen_temp[(9*p)+px][n];
+                    
+                      norm_dif_y =mtz_almacen_temp[(9*m)+py][n]-mtz_almacen_temp[(9*p)+py][n];
+                    
+                      norm_dif_z =mtz_almacen_temp[(9*m)+pz][n]-mtz_almacen_temp[(9*p)+pz][n];
+                    
+                      norm_tot = pow(((pow(norm_dif_x,2.0))+(pow(norm_dif_y,2.0))+(pow(norm_dif_z,2.0))),(0.5));
+                    
+                      mtz_F[p][m] = ((G_cte)*(masas[p]*masas[m])*(norm_dif_x))/(pow(norm_tot,3.0));
+                   }
+                }
+                /*Este segundo if va a actualizar las segundas 10 filas de mtz_F referentes a las fuerzas en el eje y*/
+                if (p>=10 && p<20){
+                   if ((p-10)==m){
+                       mtz_F[p][m] = 0;
+                   }
+                   if ((p-10)!=m){
+                      norm_dif_x = mtz_almacen_temp[(9*m)+px][n]-mtz_almacen_temp[(9*(p-10))+px][n];
+                    
+                      norm_dif_y =mtz_almacen_temp[(9*m)+py][n]-mtz_almacen_temp[(9*(p-10))+py][n];
+                    
+                      norm_dif_z =mtz_almacen_temp[(9*m)+pz][n]-mtz_almacen_temp[(9*(p-10))+pz][n];
+                    
+                      norm_tot = pow(((pow(norm_dif_x,2.0))+(pow(norm_dif_y,2.0))+(pow(norm_dif_z,2.0))),(0.5));
+                    
+                      mtz_F[p][m] = ((G_cte)*(masas[(p-10)]*masas[m])*(norm_dif_y))/(pow(norm_tot,3.0)); 
+                   }
+                }
+                /*Este tercer if va a actualizar las terceras 10 filas de mtz_F referentes a las fuerzas en el eje z*/
+                if (p>=20 && p<30){
+                   if ((p-20)==m){
+                      mtz_F[p][m] = 0; 
+                   }
+                   if ((p-20)!=m){
+                      norm_dif_x = mtz_almacen_temp[(9*m)+px][n]-mtz_almacen_temp[(9*(p-20))+px][n];
+                    
+                      norm_dif_y =mtz_almacen_temp[(9*m)+py][n]-mtz_almacen_temp[(9*(p-20))+py][n];
+                    
+                      norm_dif_z =mtz_almacen_temp[(9*m)+pz][n]-mtz_almacen_temp[(9*(p-20))+pz][n];
+                    
+                      norm_tot = pow(((pow(norm_dif_x,2.0))+(pow(norm_dif_y,2.0))+(pow(norm_dif_z,2.0))),(0.5));
+                    
+                      mtz_F[n][m] = ((G_cte)*(masas[(p-20)]*masas[m])*(norm_dif_z))/(pow(norm_tot,3.0)); 
+                   }
+                }
+            }
+        }
+        
+        /*En el cuarto for se calculan las fuerzas totales referentes a array_F*/
+        for (m=0;m<30;m++){
+            suma = 0.0;
+            for (p=0;p<10;p++){
+                suma = suma + mtz_F[m][p];
+            }
+            array_F[m] = suma;
+        }
+        
+        /*En el quinto for se actualizan las aceleraciones de la columna n de la matriz mtz_almacen_temp. la variable m va a recorrer los cuerpos*/
+        for (m=0;m<10;m++){
+            mtz_almacen_temp[(9*m)+ax][n] = (array_F[(10*0)+m])/(masas[m]);
+            mtz_almacen_temp[(9*m)+ay][n] = (array_F[(10*1)+m])/(masas[m]);
+            mtz_almacen_temp[(9*m)+az][n] = (array_F[(10*2)+m])/(masas[m]);
+        }
+        
+        /*Se actualiza el tiempo*/
+        mtz_almacen_temp[90][n] = mtz_almacen_temp[90][n-1] + h;
+    }
+    
+    /*El siguiente for es para el primer print de datos CORREGIRRRR SOLO TIEMPO Y DISTANCIAS*/
+    
+    for (n=0;n<10;n++){
+        for (m=90;m>=0;m--){
+            if (m!=0){
+                fprintf(fp,"%f %s",mtz_almacen_temp[m][n],",");
+            }
+            else {
+                fprintf(fp,"%f \n",mtz_almacen_temp[m][n]);
+            }
+        }
+    }
+    
+    while (ciclo < 800){
+        /*A continuación se procede a llenar durante 800 ciclos la matriz mtz_almacen_temp*/
+        /*Este primer for va a recorrer las columnas de mtz_almacen_temp*/
+        for (n=0;n<10;n++){
+            /*Ahora hay dos posibles opciones para la actualización de las columnas de mtz_almacen_temp. Si la columna que se está actualizando es la numero 0, entonces sus valores dependeran de la columna número 9, mientras que si la columna que se está actualizando es diferente de 0, entonces sus valores dependerán de la columna n-1*/
+            
+            /*Actualización si columna es 0:*/
+            if (n==0){
+               /*Actualización de posiciones y velocidades*/    
+               for (m=0;m<10;m++){
+                   /*Actualización de posición*/
+                   mtz_almacen_temp[(9*m)+px][n] = mtz_almacen_temp[(9*m)+px][9] + (mtz_almacen_temp[(9*m)+vx][9] * h);
+            
+                   mtz_almacen_temp[(9*m)+py][n] = mtz_almacen_temp[(9*m)+py][9] + (mtz_almacen_temp[(9*m)+vy][9] * h);
+            
+                   mtz_almacen_temp[(9*m)+pz][n] = mtz_almacen_temp[(9*m)+pz][9] + (mtz_almacen_temp[(9*m)+vz][9] * h);
+                   /*Actualización de veclocidad*/
+                   mtz_almacen_temp[(9*m)+vx][n] = mtz_almacen_temp[(9*m)+vx][9] + (mtz_almacen_temp[(9*m)+ax][9] * h);
+            
+                   mtz_almacen_temp[(9*m)+vy][n] = mtz_almacen_temp[(9*m)+vy][9] + (mtz_almacen_temp[(9*m)+ay][9] * h);
+            
+                   mtz_almacen_temp[(9*m)+vz][n] = mtz_almacen_temp[(9*m)+vz][9] + (mtz_almacen_temp[(9*m)+az][9] * h);
+                   
+               }
+               /*Actualización de matriz fuerzas mtz_F*/
+               /*Este primer for va a recorrer las columnas de mtz_F*/
+               for (m=0;m<10;m++){
+                   /*Este segundo for va a recorrer las filas de mtz_F*/
+                   for (p=0;p<30;p++){
+                       /*Este primer if va a actualizar las primeras 10 filas de mtz_F referentes a las fuerzas en el eje x*/
+                       if (p>=0 && p<10){
+                          if (p==m){
+                             mtz_F[p][m] = 0; 
+                          }
+                          if (p!=m){
+                             norm_dif_x = mtz_almacen_temp[(9*m)+px][n]-mtz_almacen_temp[(9*p)+px][n];
+                    
+                             norm_dif_y =mtz_almacen_temp[(9*m)+py][n]-mtz_almacen_temp[(9*p)+py][n];
+                    
+                             norm_dif_z =mtz_almacen_temp[(9*m)+pz][n]-mtz_almacen_temp[(9*p)+pz][n];
+                    
+                             norm_tot = pow(((pow(norm_dif_x,2.0))+(pow(norm_dif_y,2.0))+(pow(norm_dif_z,2.0))),(0.5));
+                    
+                             mtz_F[p][m] = ((G_cte)*(masas[p]*masas[m])*(norm_dif_x))/(pow(norm_tot,3.0));
+                          }
+                       }
+                       /*Este segundo if va a actualizar las segundas 10 filas de mtz_F referentes a las fuerzas en el eje y*/
+                       if (p>=10 && p<20){
+                          if ((p-10)==m){
+                             mtz_F[p][m] = 0;
+                          }
+                          if ((p-10)!=m){
+                             norm_dif_x = mtz_almacen_temp[(9*m)+px][n]-mtz_almacen_temp[(9*(p-10))+px][n];
+                    
+                             norm_dif_y =mtz_almacen_temp[(9*m)+py][n]-mtz_almacen_temp[(9*(p-10))+py][n];
+                    
+                             norm_dif_z =mtz_almacen_temp[(9*m)+pz][n]-mtz_almacen_temp[(9*(p-10))+pz][n];
+                    
+                             norm_tot = pow(((pow(norm_dif_x,2.0))+(pow(norm_dif_y,2.0))+(pow(norm_dif_z,2.0))),(0.5));
+                    
+                             mtz_F[p][m] = ((G_cte)*(masas[(p-10)]*masas[m])*(norm_dif_y))/(pow(norm_tot,3.0)); 
+                          }
+                       }
+                       /*Este tercer if va a actualizar las terceras 10 filas de mtz_F referentes a las fuerzas en el eje z*/
+                       if (p>=20 && p<30){
+                          if ((p-20)==m){
+                             mtz_F[p][m] = 0; 
+                          }
+                          if ((p-20)!=m){
+                             norm_dif_x = mtz_almacen_temp[(9*m)+px][n]-mtz_almacen_temp[(9*(p-20))+px][n];
+                    
+                             norm_dif_y =mtz_almacen_temp[(9*m)+py][n]-mtz_almacen_temp[(9*(p-20))+py][n];
+                    
+                             norm_dif_z =mtz_almacen_temp[(9*m)+pz][n]-mtz_almacen_temp[(9*(p-20))+pz][n];
+                    
+                             norm_tot = pow(((pow(norm_dif_x,2.0))+(pow(norm_dif_y,2.0))+(pow(norm_dif_z,2.0))),(0.5));
+                    
+                             mtz_F[n][m] = ((G_cte)*(masas[(p-20)]*masas[m])*(norm_dif_z))/(pow(norm_tot,3.0)); 
+                          }
+                       }
+                   }
+               }
+               /*Actualización de array fuerzas (fuerzas totales) array_F*/
+               //for (){
+                   
+               //}
+               /*Actualización de aceleraciones*/
+               /*Actualización de tiempo*/
+            }
+            /*Actualización si columna es != 0:*/
+            if (n!=0){
+                
+            }
+        }
     }
     
     
+    fclose(fp);
     return 0;
 }

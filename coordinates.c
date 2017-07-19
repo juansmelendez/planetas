@@ -316,7 +316,7 @@ int main(){
     
     /*Este primer for va a recorrer las columnas de mtz_almacen_temp pero ya que se tiene la columna 0 llena con las condiciones iniciales, la variable n empieza en 1 y no en 0*/
     for (n=1;n<10;n++){
-        /*Este segundo for (variable "m") va a recorrer las filas de mtz_almacen_temp a través de sus cuerpos por eso (0 <= m < 10) y solo va a llenar las variables de */
+        /*Este segundo for (variable "m") va a recorrer las filas de mtz_almacen_temp a través de sus cuerpos por eso (0 <= m < 10) y solo va a llenar las variables de posición y velocidad*/
         for (m=0;m<10;m++){
             /*Actualización de componentes de posición*/
             mtz_almacen_temp[(9*n)+px][n] = mtz_almacen_temp[(9*n)+px][n-1] + (mtz_almacen_temp[(9*n)+vx][n-1] * h);
